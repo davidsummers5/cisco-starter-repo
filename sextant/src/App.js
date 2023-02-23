@@ -1,98 +1,66 @@
+import React, { Component } from "react";
 import "./App.css";
-import {
-  Box,
-  Grid,
-  Container,
-  AppBar,
-  Toolbar,
-  Typography,
-  Paper,
-  CssBaseline,
-} from "@mui/material";
+import { Box, Grid, Container, Toolbar, CssBaseline } from "@mui/material";
+import Banner from "./Banner.js";
+import Data from "./Data.js";
+import axios from "axios";
 
-function App() {
-  return (
-    <Box
-      sx={{
-        display: "flex",
-      }}
-    >
-      <CssBaseline />
-      <AppBar position="absolute">
-        <Toolbar
-          sx={{
-            pr: "24px", // keep right padding when drawer closed
-          }}
-        >
-          <Typography
-            component="h1"
-            variant="h6"
-            color="inherit"
-            noWrap
-            sx={{ flexGrow: 1 }}
-          >
-            Sextant
-          </Typography>
-        </Toolbar>
-      </AppBar>
+class App extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      IPv4: null,
+      IPv6: null,
+    };
+  }
+
+  render() {
+    axios.get("https://api.ipify.org").then((response) => {
+      console.log(response.data);
+      this.setState({ IPv4: response.data });
+    });
+    axios.get("https://api6.ipify.org").then((response) => {
+      console.log(response.data);
+      this.setState({ IPv6: response.data });
+    });
+    return (
       <Box
-        component="main"
         sx={{
-          backgroundColor: (theme) =>
-            theme.palette.mode === "light"
-              ? theme.palette.grey[100]
-              : theme.palette.grey[900],
-          flexGrow: 1,
-          height: "100vh",
-          overflow: "auto",
+          display: "flex",
         }}
       >
-        <Toolbar />
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          <Grid container spacing={3}>
-            <Grid item xs={6} md={5} lg={4} alignItems="center">
-              <Paper
-                sx={{
-                  p: 2,
-                  display: "flex",
-                  flexDirection: "column",
-                  height: 240,
-                }}
-              >
-                <Typography
-                  component="h2"
-                  variant="h6"
-                  color="primary"
-                  gutterBottom
-                >
-                  IP Address:
-                </Typography>
-              </Paper>
+        <CssBaseline />
+        <Banner />
+        <Box
+          component="main"
+          sx={{
+            backgroundColor: (theme) =>
+              theme.palette.mode === "light"
+                ? theme.palette.grey[100]
+                : theme.palette.grey[900],
+            flexGrow: 1,
+            height: "100vh",
+            overflow: "auto",
+          }}
+        >
+          <Toolbar />
+          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+            <Grid container spacing={3}>
+              <Grid item xs={6} md={5} lg={4} alignItems="center">
+                <Data name="IPv4" data={this.state.IPv4} />
+              </Grid>
+              <Grid item xs={8} md={7} lg={5}>
+                <Data name="IPv6" data={this.state.IPv6} />
+              </Grid>
+              <Grid item xs={6} md={5} lg={4} alignItems="center">
+                <Data name="Latency" />
+              </Grid>
             </Grid>
-            <Grid item xs={6} md={5} lg={4}>
-              <Paper
-                sx={{
-                  p: 2,
-                  display: "flex",
-                  flexDirection: "column",
-                  height: 240,
-                }}
-              >
-                <Typography
-                  component="h2"
-                  variant="h6"
-                  color="primary"
-                  gutterBottom
-                >
-                  Latency:
-                </Typography>
-              </Paper>
-            </Grid>
-          </Grid>
-        </Container>
+          </Container>
+        </Box>
       </Box>
-    </Box>
-  );
+    );
+  }
 }
 
 export default App;
