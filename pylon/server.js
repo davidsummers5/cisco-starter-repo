@@ -1,5 +1,14 @@
+const express = require("express");
+const cors = require("cors");
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
 const webSocketServer = require("websocket").server;
 const http = require("http");
+var WebSocketClient = require("websocket").client;
+var client = new WebSocketClient();
 
 const server = http.createServer();
 server.listen(55455);
@@ -13,14 +22,31 @@ wsServer.on("request", function (request) {
   }, 100);
 });
 
-http.get({ host: "api.ipify.org", port: 80, path: "/" }, function (resp) {
-  resp.on("data", function (ip4) {
-    console.log("My IPv4 address is: " + ip4);
+client.on("connectFailed", function (error) {
+  console.log("Connect Error: " + error.toString());
+});
+
+client.on("connect", function (connection) {
+  console.log("WebSocket Client Connected");
+  connection.on("error", function (error) {
+    console.log("Connection Error: " + error.toString());
+  });
+  connection.on("close", function () {
+    console.log("echo-protocol Connection Closed");
+  });
+  connection.on("message", function (message) {
+    if (message.type === "utf8") {
+      var latency = new Date().getTime() - message.utf8Data;
+      //console.log(latency + "ms");
+      app.get("/message", (req, res) => {
+        res.json({ message: latency });
+      });
+    }
   });
 });
 
-http.get({ host: "api64.ipify.org", port: 80, path: "/" }, function (resp) {
-  resp.on("data", function (ip6) {
-    console.log("My IPv6 address is: " + ip6);
-  });
+client.connect("ws://localhost:55455/");
+
+app.listen(8000, () => {
+  console.log(`Server is running on port 8000.`);
 });

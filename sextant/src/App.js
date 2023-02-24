@@ -11,6 +11,7 @@ class App extends Component {
     this.state = {
       IPv4: null,
       IPv6: null,
+      latency: null,
     };
   }
 
@@ -23,6 +24,11 @@ class App extends Component {
       console.log(response.data);
       this.setState({ IPv6: response.data });
     });
+    axios.get("http://localhost:8000/message").then((response) => {
+      console.log(response.data);
+      this.setState({ latency: response.data.message + "ms" });
+    });
+
     return (
       <Box
         sx={{
@@ -53,7 +59,7 @@ class App extends Component {
                 <Data name="IPv6" data={this.state.IPv6} />
               </Grid>
               <Grid item xs={6} md={5} lg={4} alignItems="center">
-                <Data name="Latency" />
+                <Data name="Latency" data={this.state.latency} />
               </Grid>
             </Grid>
           </Container>
